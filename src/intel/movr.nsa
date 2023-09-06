@@ -1,0 +1,43 @@
+# Move register or memory source to register destination
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE MOVR_PG
+
+# assume: Y = $VMS
+LDZ HL, $INC$NULL
+FNH DZ, HLD           # inc state
+LD HL, $REGMAPL$NULL
+LD Y, $INST
+FNDH DZ, YA           # Y = zpage addr of source reg
+#11
+LD HL, $IDEN$REGMAPH
+LDN PC, $REG_SRC      # zpage > 0x80 for reg source
+LD Y, $LREG           # MEM_SRC
+FNFH DZ, XA           # X = L
+LDZ Y, $HREG
+#21
+FNH DZ, Y             # Y = H
+FNFH M, NA            # A = [HL]
+$REG_DEST
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of dest reg
+#31
+FNH AZ, HLD           # A -> dest reg
+NOP
+NOP
+LD HL, $FETCH
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#43
+
+$REG_SRC
+FNFH DZ, NA           # source reg -> A
+NOP
+NOP
+#20
+NOP
+NOP
+NOP
+NOP
+LD PC, $REG_DEST

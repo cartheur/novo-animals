@@ -1,0 +1,97 @@
+# Load H and L direct - cycle 2.1
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE LHLD1_PG
+
+# assume: A = X, H = $IDEN
+LDP PC, $BRANCH
+LDZ Y, $TMPH
+FNH DZ, Y             # Y = hi addr
+FNFH M, NA            # A = [XY]
+LD Y, $LREG
+FNH AZ, HLD           # A -> L
+#70
+LD HL, $INC$NULL
+LD Y, $TMPL
+FNFH DZ, XD           # X = low addr+1
+LDP HL, $INC$NULL     # X was negative, now positive
+LDN HL, $IDEN$NULL
+#80
+LDZ Y, $TMPH
+FNH DZ, Y             # Y = updated hi addr
+LD HL, $IDEN$NULL
+FNFH M, NA            # A = [XY]
+LD Y, $HREG
+#91
+FNH AZ, HLD           # A -> H
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+#100
+LDZ Y, $PCH
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$NULL
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+#111
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+NOP
+NOP
+NOP
+NOP
+NOP
+#120
+NOP
+NOP
+NOP
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#129
+
+#60
+$BRANCH
+LDZ Y, $TMPH
+FNH DZ, Y             # Y = hi addr
+FNFH M, NA            # A = [XY]
+LD Y, $LREG
+FNH AZ, HLD           # A -> L
+#71
+LD HL, $INC$NULL
+LD Y, $TMPL
+FNFH DZ, XD           # X = low addr+1
+LD HL, $IDEN$NULL
+#80
+LDZ Y, $TMPH
+FNH DZ, Y             # Y = updated hi addr
+FNFH M, NA            # A = [XY]
+LD Y, $HREG
+FNH AZ, HLD           # A -> H
+#91
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LDZ Y, $PCH
+#100
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$NULL
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+#111
+FNH AZ, HLD           # A -> inst cache,HL
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+#120
+NOP
+NOP
+NOP
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#129

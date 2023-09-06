@@ -1,0 +1,49 @@
+# Fetch - post-inc
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE FETCH2_PG
+
+# assume: Y = $VMS
+LD HL, $INCCYC$NULL
+FNEH DZ, ND            # inc state, clear ext flag
+NOP
+NOP
+NOP
+NOP
+NOP
+#10
+NOP
+NOP
+NOP
+LD HL, $IDEN$NULL
+LD Y, $IMODE
+FNFH DZ, NA
+#20
+LDP PC, $CHECK
+LD Y, $PCL
+FNFH DZ, XA            # X = PCL
+LDZ Y, $PCH
+FNH DZ, Y              # Y = PCH
+#30
+FNFH M, NA             # A = [PC]
+LD Y, $INST
+FNH AZ, HLD            # HL -> inst cache
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#43
+
+# assume: Y = $IMODE
+$CHECK
+LDZ HL, $DEC$NULL
+FNH DZ, HLD            # -1 -> interupt mode
+NOP
+NOP
+NOP
+#29
+LD HL, $INTR1_INST     # HL = check interupts
+LD Y, $INST
+MVHL AZ, ND            # HL -> inst cache
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#43

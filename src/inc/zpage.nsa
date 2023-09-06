@@ -1,0 +1,154 @@
+# zero page assignments
+#RESERVED      0x80-0x8B (12) scratch pad (protected)
+$HALTMPA       0x88 # HAL temp Async
+$HALTMPT       0x89 # HAL temp Tsync
+$HALTMPR       0x8A # HAL temp Rsync
+$HALTMPB       0x8B # HAL temp Bsync
+#SOUND (read/write)
+$PCMPGH        0x8C # PCM page high water - stop page
+$PCMPGL        0x8D # PCM page low water - current page
+$WAVE0         0x8E
+$ATTACK0       0x8F
+$DECAY0        0x90
+$SUSTAIN0      0x91
+$RELEASE0      0x92
+$NOTE1L        0x93 # note interval low (FREQL)
+$NOTE1H        0x94 # note interval high (FREQH)
+$WAVE1         0x95 # wave table entry (SQRWAV/SAWWAV: 0000WWWW)
+$ATTACK1       0x96 # ADSR attack (positive 4-bit packed to 8-bits *8: 0AAAA000)
+$DECAY1        0x97 # ADSR decay (negative 4-bit packed to 8-bits *8: 1DDDD000)
+$SUSTAIN1      0x98 # ADSR sustain (negative 4-bit packed to 8-bits: 1111SSSS)
+$RELEASE1      0x99 # ADSR release (negative 4-bit packed to 8-bits *8: 1RRRR000)
+$NOTE2L        0x9A
+$NOTE2H        0x9B
+$WAVE2         0x9C
+$ATTACK2       0x9D
+$DECAY2        0x9E
+$SUSTAIN2      0x9F
+$RELEASE2      0xA0
+$NOTE3L        0xA1
+$NOTE3H        0xA2
+$WAVE3         0xA3
+$ATTACK3       0xA4
+$DECAY3        0xA5
+$SUSTAIN3      0xA6
+$RELEASE3      0xA7
+#CONSOLE (read/write)
+$CONL          0xA8 # console left border
+$CONR          0xA9 # console right border
+$CONX          0xAA # console column
+$CONY          0xAB # console row
+$CONH          0xAC # console height from bottom
+$CONB          0xAD # console backspace stop
+$CONC          0xAE # console cursor char
+$CONF          0xAF # console font
+$VSTART        0xB0 # start of video display
+$VMODE         0xB1 # video mode to set
+$ICH           0xB2 # idle cycle count high byte
+$KTO           0xB3 # max kbd idle count
+$KSRDIDX       0xB4
+$KSWRIDX       0xB5
+$KCRDIDX       0xB6
+$KCWRIDX       0xB7
+#PROTECTED STATE (read-only)
+$CBLOCK        0xB8 # context switch block
+$CTXIDX        0xB9 # context index
+$BLOCK         0xBA # block count, 0 to 175/160/128
+$FRAME         0xBB # frame count, -5,-4 to 0
+$TIME0         0xBC # 15tps, -90 to 0 in 6s
+$TIME1         0xBD # 10tpm, -120 to 0 in 12m
+$TIME2         0xBE # 5tph, -120 to 0 in 1d
+$TIME3         0xBF # 1tpd, overflow at 256 in 0.7y
+#INTERNAL STATE (hidden)
+$DELTA0        0xC0
+$DELTA1        0xC1 # ADSR state as Y indirect
+$DELTA2        0xC2
+$DELTA3        0xC3
+$GATE0         0xC4
+$GATE1         0xC5 # ADSR sustain to set on gate on
+$GATE2         0xC6
+$GATE3         0xC7
+$WAVIDX1L      0xC8 # wave table index low
+$WAVIDX1H      0xC9 # wave table index high
+$WAVIDX2L      0xCA
+$WAVIDX2H      0xCB
+$WAVIDX3L      0xCC
+$WAVIDX3H      0xCD
+$AMODE         0xCE # audio mode - 0x00-0x3F
+$KMODE         0xCF # kbd decode state
+$KIDLE         0xD0 # kbd idle cycle count
+$KS0           0xD1 # kbd sample 0
+$KS1           0xD2 # kbd sample 1
+$RMODE         0xD3 # Rx mode - 0x40-0x7F
+$RXRDIDX       0xD4
+$RXWRIDX       0xD5
+$RMULT         0xD6 # rx multiplier
+$TMODE         0xD7 # Tx mode - 0x80-0xBF
+$TXRDIDX       0xD8
+$TXWRIDX       0xD9
+$COMLS         0xDA # comms line state
+$COMBS         0xDB # comms block state
+$CTX0          0xDC # current context
+$CTX1          0xDD # next context
+#SPARE         0xDE-F (2)
+$EO            0xE0 # Eo register value
+$VMS           0xE1 # virtual machine state
+$MODE          0xE2 # video mode (used with mode line in VMS)
+$BMODE         0xE3 # VID col used for block
+$VLINE         0xE4 # video memory line
+$ICL           0xE5 # idle cycle count low byte
+$KBSTAT        0xE6 # kbd status
+$RCODE         0xE7 # restart scan code
+$CMDL          0xE8 # kernel IPC - command low
+$CMDH          0xE9 # kernel IPC - command high
+$MSEQ          0xEA # kernel IPC - message sequence
+$MLEN          0xEB # kernel IPC - message length
+#8080CPU
+$INST          0xEC # instruction cache
+$EXT           0xED # extended mode cache
+$IMODE         0xEE # check interrupt - 0: check, -1: skip
+$IMASK         0xEF # interrupt mask - lower nibble, bit3: enable
+$AREG          0xF0 # Accumulator
+$FREG          0xF1 # Flags - COZNHP00
+$BREG          0xF2
+$CREG          0xF3
+$DREG          0xF4
+$EREG          0xF5
+$HREG          0xF6
+$LREG          0xF7
+$SPH           0xF8 # SP MSB
+$SPL           0xF9 # SP LSB
+$PCH           0xFA # PC MSB
+$PCL           0xFB # PC LSB
+$TMPH          0xFC # 16-bit temp MSB
+$TMPL          0xFD # 16-bit temp LSB
+$TEMP          0xFE # 8-bit temp
+#HARDWARE
+$AUDIO         0xFF
+
+#Constants
+$FETCH         0x00
+$FETCH2        0x10
+$RST2_INST     0x18
+$INTR1_INST    0x28
+$INTR2_INST    0x38
+$SKIP_INST     0xCB
+$PUSHPC_INST   0xD9
+$JMP_INST      0xC3
+
+$COPYROM_INST  0x01
+$CLRLN_INST    0x02
+$CTXSW_INST    0x03
+$YIELD_INST    0x06
+$RECSEND_INST  0x0A
+$RECXFER_INST  0x0B
+$RECRECV_INST  0x0C
+$SERSEND_INST  0x0D
+$SERRECV_INST  0x0E
+$DMA_INST      0x0F
+
+$KSBUFF        0xF8
+$KCBUFF        0xF9
+$RXBUFF        0xFA
+$TXBUFF        0xFB
+$CTX_SEQ       0xFE

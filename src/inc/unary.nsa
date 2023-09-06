@@ -1,0 +1,69 @@
+# Unary function codes
+$NULL       0
+
+#FNF, FNH - default
+$IDEN       0 # A = A   *** DO NOT MOVE
+$INC        1 # A = A+1 *** DO NOT MOVE
+$INC2       2 # A = A+2 *** DO NOT MOVE
+$DEC        3 # A = A-1
+$1COM       4 # A = !A
+$2COM       5 # A = -A
+$LSR        6 # A>>1
+$LSL        7 # A<<1
+$ZERO?      8 # A==0 ? 0:-1
+$KERN?      9 # A&7==1 ? 0:-1
+$INCLINE   10 # ML +1, cyc=0
+$INCBLK    11 # ML reset, cyc=1
+$NSR       12 # A>>1|0x80
+$SWAP      13 # AB -> BA
+$REVERSE   14 # reverse bits
+#AUDIO     15 # reverse bits, flip sign
+
+#FNE - HAL
+$XGA?       0 # mode-line>=11?: 0-10->-1,else->0
+$INCCYC     1 # cyc+1, ext=0 *** DO NOT MOVE
+$FORKJ      2 # feature fork (audio, rx, tx/kb)
+$FORKK      3 # keyboard fork
+$ML2ADJ     4 # mode-line to T0 adjust: 0-2->0xE0,else->0xF0
+$MASK2MODE  5 # &8==0 ? -1:0
+$RXS2M      6 # Rx state to mult/mode
+$TKTOG      7 # 81->C2->98,83->E2->9A
+$KS01?      8 # A&3==0||1 ? 0:-1
+$KDATA      9 # A&C<<2
+$ADSRPG    10 # FRAME->ADSR Page
+$SUS2LEV   11 # sustain to level
+$SQRWAV    12 # MIDI->bandlimited square WAV
+$SAWWAV    13 # MIDI->bandlimited sawtooth WAV
+$FREQL     14 # MIDI->wave index delta L
+$FREQH     15 # MIDI->wave index delta H
+
+#FND - CPU
+$FORKI      0 # interupt vector fork
+$FORK1      1 # 0->0x80,else->0xC0
+$FORK2      2 # 0xFF->0x40,0->0x80,else->0xC0
+$FORK3      3 # 0xFE->0x20,0xFF->0x58,0->0x90,else->0xC8
+$REGMAPH    4 # map dest/hi register to zpage addr
+$REGMAPL    5 # map source/low register to zpage addr
+$F2PSW      6 # flags->PSW
+$PSW2F      7 # PSW->flags
+$SWCARRY    8 # swap carry with borrow flags
+$DACARRY    9 # set carry if nibbles > 9
+$FORKP     10 # IN/OUT page fork
+$FORKC     11 # Console page fork
+$EXTPG1    12 # extended execute 2-cycle jump page
+$EXTPG2    13 # extended execute 3-cycle jump page
+$EXTPC     14 # extended execute jump PC
+$EXTFCH    15 # extended fetch ok? INST : NOP
+
+#FNC - Extended
+$SCAN0      0 # lower/upper scan code->ascii
+$SCAN1      1 # extended/control scan code->ascii
+$SCAN2      2 # alt/ext-ctrl-alt scan code->ascii
+$KS2MODE    3 # kbd scan code->kmode mask bit
+$MOD60      4 # binary-coded sexagesimal
+$VATTR      5 # video mode attributes (64 modes, 4 attrs/mode)
+$WAV2FNC    6 # WAVE in L to SQRWAV/SAWWAV/0 in H
+$MODPCM     7 # PCM INC/MOD, Fork, expand
+$EXTMAPH    8 # extended inst mapping util (high)
+$EXTMAPL    9 # extended inst mapping util (low)
+$CTXCOL    10 # Context Column n->0xFn 0<n<8

@@ -1,0 +1,115 @@
+# Warm Start
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE WARM_START_PG
+
+$ROW 0x81
+
+# Set E-reg
+LD HL, $0x11              # deassert, bank 1
+LD Y, $EO
+MVHL AZ, ED               # set RTS, bank
+
+# Keyboard
+LD HL, $0
+LD Y, $KMODE
+MULH AZ, ND               # 0 -> Keyboard mode
+LD Y, $KCWRIDX
+MULH AZ, ND               # 0 -> Key code Wr index
+LD Y, $KSWRIDX
+MULH AZ, ND               # 0 -> Key scan Wr index
+LD HL, $0xFF
+LD Y, $KCRDIDX
+MVHL AZ, ND               # -1 -> Key code Rd index
+LD Y, $KSRDIDX
+MVHL AZ, ND               # -1 -> Key scan Rd index
+
+# Serial
+LD HL, $0x40              # 0x60=on,0x40=off
+LD Y, $RMODE
+MVHL AZ, ND
+LD HL, $0x80              # 0xA0=on,0x80=off
+LD Y, $TMODE
+MVHL AZ, ND
+LD HL, $0xFF
+LD Y, $RXRDIDX
+MVHL AZ, ND               # -1 -> Rx Rd index
+LD Y, $TXRDIDX
+MVHL AZ, ND               # -1 -> Tx Rd index
+LD HL, $0
+LD Y, $RXWRIDX
+MULH AZ, ND               # 0 -> Rx Wr index
+LD Y, $TXWRIDX
+MULH AZ, ND               # 0 -> Tx Wr index
+
+# Audio
+LD HL, $0x00
+LD Y, $AMODE
+MVHL AZ, ND               # 0->number of voices
+LD HL, $0x80
+LD Y, $AUDIO
+MVHL AZ, ND               # mute->audio
+
+# Clear CTX sequence
+LD HL, $CTX_SEQ
+MVHL A, XA                # X=CTX_SEQ
+LD HL, $0
+LD Y, $ROW
+MULH AZ, ND               # 0->[ROW]
+$CLRCTX
+LDZ HL, $IDEN$NULL
+FNH DZ, Y                 # Y=[ROW]
+MULH A, ND                # 0->[X,Y]
+LD HL, $INC$NULL
+LDZ Y, $ROW
+FNH DZ, HLD               # [ROW]+1
+LD HL, $ZERO?$NULL
+FNH A, HLA
+LDN PC, $CLRCTX           # loop index
+
+# Boot Kernel CPU
+$BOOT
+LD HL, $0x14              # -0x6C CTRL_ALT_HOME
+LD Y, $RCODE
+ADDHL DZ, NA
+LD HL, $ZERO?$NULL
+FNH A, HLA
+LDP HL, $1
+LDN HL, $0
+LD Y, $AREG
+MVHL AZ, ND               # boot or monitor -> Acc
+LD HL, $0xF1
+LD Y, $CTX0
+MVHL AZ, ND               # Kernel->Context
+LD HL, $0
+LD Y, $CTXIDX
+MULH AZ, ND               # reset context index
+LD Y, $IMASK
+MULH AZ, ND               # 0->IMASK = 0 (disable)
+LD Y, $CREG
+MULH AZ, ND               # 0->C
+LD Y, $DREG
+MULH AZ, ND               # 0->D
+LD Y, $EREG
+MULH AZ, ND               # 0->E
+LD Y, $TEMP
+MULH AZ, ND               # 0->temp
+LD Y, $TMPL
+MULH AZ, ND               # 0->tmpL
+LD HL, $0x80
+LD Y, $TMPH
+MVHL AZ, ND               # 0x80->tmpH
+LD HL, $0xFF
+LD Y, $PCH
+MVHL AZ, ND
+LD Y, $PCL
+MVHL AZ, ND               # 0xFFFF->PC
+LD HL, $COPYROM_INST
+LD Y, $INST
+MVHL AZ, ND               # Bootstrap Kernal
+LD HL, $0x80
+LD Y, $VMS
+MVH DZ, ND                # Extended instruction
+
+LD PG, $VID_MODE_PG       # video mode

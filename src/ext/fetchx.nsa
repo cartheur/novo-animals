@@ -1,0 +1,46 @@
+# Extended fetch pre-inc
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE FETCHX_PG
+
+# assume: Y = $VMS
+LD HL, $0x80
+ORH DZ, NA             # set ext flag
+LD HL, $INC$FORK1
+FNFH AZ, ND            # inc state
+#10
+NOP
+LD Y, $PCL
+FNFH DZ, XD            # X,PCL = PCL+1
+FNDL A, PC             # fork on PCL
+#19
+
+ADDR 0x80              # PCL = 0
+LDZ Y, $PCH
+FNH DZ, HLD            # PCH = PCH+1      *** inc PCH ***
+LDZ HL, $IDEN$NULL
+FNH DZ, Y              # Y = PCH
+FNFH M, NA             # A = [PC]
+#30
+LD HL, $EXTFCH$NULL
+LD Y, $INST
+FNDH AZ, HLD           # A|NOP -> inst cache,HL (clear bank)
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#43
+
+ADDR 0xC0              # else
+NOP
+NOP
+LD HL, $IDEN$NULL
+LDZ Y, $PCH
+FNH DZ, Y              # Y = PCH
+FNFH M, NA             # A = [PC]
+#30
+LD HL, $EXTFCH$NULL
+LD Y, $INST
+FNDH AZ, HLD           # A|NOP -> inst cache,HL (clear bank)
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#43

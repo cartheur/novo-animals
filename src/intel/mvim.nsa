@@ -1,0 +1,128 @@
+# Move immediate to memory (with fetch)
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE MVIM_PG
+
+# assume: Y = $VMS
+LDZ HL, $INC2$NULL
+FNH DZ, HLD           # inc state
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+#10
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+#20
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+LD HL, $INC$FORK2
+LD Y, $PCL
+#31
+FNFH DZ, XD           # X,PCL = PCL+1
+FNDL A, PC
+#37
+
+ADDR 0x40             # PCL = 255, iden PCH, inc PCH
+LD HL, $IDEN$IDEN
+LDZ Y, $PCH
+#41
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $LREG
+FNFL DZ, X            # X = L
+#51
+LDZ Y, $HREG
+FNH DZ, Y             # Y = H
+FNFH A, NM            # A -> [HL]
+LD HL, $INC$NULL
+#60
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LDZ Y, $PCH
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$NULL
+#71
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86
+
+ADDR 0x80             # PCL = 0, inc PCH, iden PCH
+LDZ Y, $PCH
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+#41
+LD HL, $IDEN$IDEN
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $LREG
+#50
+FNFL DZ, X            # X = L
+LDZ Y, $HREG
+FNH DZ, Y             # Y = H
+FNFH A, NM            # A -> [HL]
+#60
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$NULL
+LDZ Y, $PCH
+#71
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86
+
+ADDR 0xC0             # else, iden PCH, iden PCH
+NOP
+NOP
+LD HL, $IDEN$IDEN
+#41
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $LREG
+#50
+FNFL DZ, X            # X = L
+LDZ Y, $HREG
+FNH DZ, Y             # Y = H
+FNFH A, NM            # A -> [HL]
+#60
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$NULL
+LDZ Y, $PCH
+#71
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86

@@ -1,0 +1,159 @@
+# All the pages
+$IDLE_PG       0x00 # 43-pc idle VMC
+$FETCHX_PG     0x01 # extended fetch
+$DISPX1_PG     0x02 # fetch/disptch/exec 2-cycle
+$DISPX2_PG     0x03 # fetch/disptch/exec 3-cycle
+$COPYROM_PG    0x04 # ED01
+$CLRLN_PG      0x05 # DD02 (dispatched from CONSOLE)
+$CTXSW_PG      0x06 # DD03 (dispatched from BSYNC)
+$MVCTX_PG      0x07 # DD04 (kernel init)
+$CMDSND_PG     0x08 # DD05
+$YIELD_PG      0x09 # ED06 kernel, DD06 slave
+$SIGNAL_PG     0x0A # DD07
+$IPCSND_PG     0x0B # DD08
+$IPCRCV_PG     0x0C # DD09
+$RECSEND_PG    0x0D # ED0A
+$RECXFER_PG    0x0E # ED0B
+$RECRECV_PG    0x0F # ED0C
+# Jump page for ext instr
+$JMPPG0_PG     0x10
+$JMPPG1_PG     0x11
+
+# 0x18-0x1F: os/kernel cont
+$SERSEND_PG    0x18 # DD0D
+$SERRECV_PG    0x19 # DD0E
+$DMA_PG        0x1A # DD0F
+$SHMRD_PG      0x1B # DD10
+$SHMWR_PG      0x1C # DD11
+
+# 0x20-0x2F: util
+$SAA_PG        0x20 # DD18
+
+$MOVMX_PG      0x28
+# 0x30-0x3F: sound/Gfx
+$VOICE_PG      0x30 # DD20-DD23
+$NOTE_PG       0x31 # DD28-DD2B
+$GATE_PG       0x32 # DD24-DD27,DD2C-DD2F
+
+# 0x40-7F: user reserved
+
+# 0x80-0x8F: system
+$COLD_START_PG 0x80 # reset vector
+$WARM_START_PG 0x81
+$KBD_START_PG  0x82
+$VID_START_PG  0x83
+
+$VID_MODE_PG   0x88
+
+$FETCH1_PG     0x90 # 0x90-0xE3: 8080 instruction set
+$FETCH2_PG     0x91
+$HLT_PG        0x92
+$MOVR_PG       0x93
+$MOVM_PG       0x94
+$MVIR_PG       0x95
+$MVIM_PG       0x96
+$LXI_PG        0x97
+$LDA_PG        0x98
+$STA_PG        0x99
+$LHLD_PG       0x9A
+$LHLD1_PG      0x9B
+$LHLD2_PG      0x9C
+$SHLD_PG       0x9D
+$SHLD1_PG      0x9E
+$SHLD2_PG      0x9F
+$LDAX_PG       0xA0
+$STAX_PG       0xA1
+$XCHG_PG       0xA2
+$ADDR_PG       0xA3
+$ADDM_PG       0xA4
+$ADI_PG        0xA5
+$ADCR_PG       0xA6
+$ADCM_PG       0xA7
+$ACI_PG        0xA8
+$SUBR_PG       0xA9
+$SUBM_PG       0xAA
+$SUI_PG        0xAB
+$SBBR_PG       0xAC
+$SBBM_PG       0xAD
+$SBI_PG        0xAE
+$INRR_PG       0xAF
+$INRM_PG       0xB0
+$DCRR_PG       0xB1
+$DCRM_PG       0xB2
+$INX_PG        0xB3
+$DCX_PG        0xB4
+$DAD_PG        0xB5
+$DAA_PG        0xB6
+$ANAR_PG       0xB7
+$ANAM_PG       0xB8
+$ANI_PG        0xB9
+$ORAR_PG       0xBA
+$ORAM_PG       0xBB
+$ORI_PG        0xBC
+$XRAR_PG       0xBD
+$XRAM_PG       0xBE
+$XRI_PG        0xBF
+$CMPR_PG       0xC0
+$CMPM_PG       0xC1
+$CPI_PG        0xC2
+$RLC_PG        0XC3
+$RRC_PG        0XC4
+$RAL_PG        0XC5
+$RAR_PG        0XC6
+$CMA_PG        0xC7
+$CMC_PG        0xC8
+$STC_PG        0xC9
+$JMP_PG        0xCA
+$JMPC_PG       0xCB
+$SKIP_PG       0xCC
+$CALLR_PG      0xCD
+$CALLS_PG      0xCE
+$PUSHPC_PG     0xCF
+$RETR_PG       0xD0
+$RETS_PG       0xD1
+$RST_PG        0xD2
+$RST2_PG       0xD3
+$PCHL_PG       0xD4
+$PUSH_PG       0xD5
+$PUSHA_PG      0xD6
+$POP_PG        0xD7
+$POPA_PG       0xD8
+$PREFETCH_PG   0xD9
+$XTHL_PG       0xDA
+$SPHL_PG       0xDB
+$IN_PG         0xDC
+$OUT_PG        0xDD
+$CON_PG        0xDE # Console extension to IN/OUT
+$DSUB_PG       0xDF
+$ICTRL_PG      0xE0 # DI, EI
+$IMASK_PG      0xE1 # RIM, SIM
+$INTR1_PG      0xE2
+$INTR2_PG      0xE3 #/end of 8080
+$PCME_PG       0xE4 # PCM extension to audio
+$RTCE_PG       0xE5 # RTC extension to block
+$NSYNCE_PG     0xE6 # null sync on execute
+$DASYNCE_PG    0xE7 # delayed audio
+$ASYNCE_PG     0xE8 # audio
+$DTSYNCE_PG    0xE9 # delayed transmit
+$TSYNCE_PG     0xEA # transmit
+$KSCANE_PG     0xEB # keyboard
+$KDCODE_PG     0xEC # keyboard decode
+$RSYNCE_PG     0xED # receive
+$DBSYNCE_PG    0xEE # delayed block
+$BSYNCE_PG     0xEF # block
+$NSYNCF1_PG    0xF0 # syncs on fetch (ditto)
+$DASYNCF1_PG   0xF1
+$ASYNCF1_PG    0xF2
+$DTSYNCF1_PG   0xF3
+$TSYNCF1_PG    0xF4
+$KSCANF1_PG    0xF5
+$KDCODF1_PG    0xF6
+$RSYNCF1_PG    0xF7
+$DBSYNCF1_PG   0xF8
+$BSYNCF1_PG    0xF9
+$ADSRE0_PG     0xFA # ADSR voice 0
+$ADSRE1_PG     0xFB # ADSR voice 1
+$ADSRE2_PG     0xFC # ADSR voice 2
+$ADSRE3_PG     0xFD # ADSR voice 3
+
+$BOOT          0xFF # hardware reset

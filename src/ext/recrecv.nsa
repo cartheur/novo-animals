@@ -1,0 +1,179 @@
+# Receive record - two bytes per 2-cycle, fetch when done
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE RECRECV_PG
+
+#DREG: RAM page
+#EREG: RAM X index
+#AREG: buffer index, init 0xFF
+# assume: Y = $VMS
+LD HL, $INC2$FORK3
+FNFH DZ, ND            # VMS+2
+LDZ Y, $AREG
+FNFH DZ, ND            # row = row+2
+#10/8
+LDN PC, $EXIT12        # exit at end of buffer
+LD Y, $EREG
+FNDL DZ, PC            # Fork on E
+#16/14
+
+ADDR 0x20              # E = 254, iden D, inc D
+FNH DZ, HLD            # E+2
+LD HL, $DEC$IDEN
+#20/3
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+LDZ Y, $AREG
+FNH DZ, Y              # Y = row-1
+LD HL, $IDEN$DEC
+#31/12
+FNFH D, NA             # A = [Y,X]
+LD Y, $EREG
+FNFL DZ, X             # X = E-1
+LDZ Y, $DREG
+#41/20
+FNH DZ, Y              # Y = D
+FNFH A, NM             # A->[Y,X]
+LD HL, $INC$IDEN
+LDZ Y, $DREG
+#50/27
+FNH DZ, HLD            # D = D+1         *** inc D ***
+LD HL, $IDEN$IDEN
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+LDZ Y, $AREG
+#61/36
+FNH DZ, Y              # Y = row
+FNFH D, NA             # A = [Y,X]
+LD Y, $EREG
+FNFL DZ, X             # X = E
+#71/43
+LDZ Y, $DREG
+FNH DZ, Y              # Y = D
+FNFH A, NM             # A->[Y,X]
+LD HL, $RECRECV_INST
+#80/50
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#86/54
+
+ADDR 0x58              # E = 255, inc D, iden D
+FNH DZ, HLD            # E+2
+LD HL, $INC$IDEN
+#20/3
+LDZ Y, $DREG
+FNH DZ, HLD            # D = D+1         *** inc D ***
+LD HL, $DEC$IDEN
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+#31/12
+LDZ Y, $AREG
+FNH DZ, Y              # Y = row-1
+LD HL, $IDEN$DEC
+FNFH D, NA             # A = [Y,X]
+#40/19
+LD Y, $EREG
+FNFL DZ, X             # X = E-1
+LDZ Y, $DREG
+FNH DZ, Y              # Y = D
+#49/26
+FNFH A, NM             # A->[Y,X]
+LD HL, $IDEN$IDEN
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+#59/34
+LDZ Y, $AREG
+FNH DZ, Y              # Y = row
+FNFH D, NA             # A = [Y,X]
+LD Y, $EREG
+FNFL DZ, X             # X = E
+#71/43
+LDZ Y, $DREG
+FNH DZ, Y              # Y = D
+FNFH A, NM             # A->[Y,X]
+LD HL, $RECRECV_INST
+#80/50
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#86/54
+
+ADDR 0x90              # E = 0, iden D, iden D
+NOP
+NOPZ
+$CONT18
+FNH DZ, HLD            # E+2
+#20/3
+LD HL, $DEC$IDEN
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+LDZ Y, $AREG
+FNH DZ, Y              # Y = row-1
+#31/12
+LD HL, $IDEN$DEC
+FNFH D, NA             # A = [Y,X]
+LD Y, $EREG
+FNFL DZ, X             # X = E-1
+#41/20
+LDZ Y, $DREG
+FNH DZ, Y              # Y = D
+FNFH A, NM             # A->[Y,X]
+LD HL, $IDEN$IDEN
+#50/27
+LD Y, $CTX0
+FNFL DZ, X             # X = context col
+LDZ Y, $AREG
+FNH DZ, Y              # Y = row
+#59/34
+FNFH D, NA             # A = [Y,X]
+LD Y, $EREG
+FNFL DZ, X             # X = E
+LDZ Y, $DREG
+#69/42
+FNH DZ, Y              # Y = D
+FNFH A, NM             # A->[Y,X]
+NOP
+NOP
+NOP
+NOP
+LD HL, $RECRECV_INST
+#80/51
+LD Y, $VMS             # set Y = $VMS on exit
+DISHL DZ, PGA          # jump to next VMC
+#86/55
+
+ADDR 0xC8              # else, iden D, iden D
+LDZ PC, $CONT18
+
+$EXIT12
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+#20
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+#30
+NOP
+NOP
+NOP
+NOP
+NOP
+LD HL, $DEC$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+#39
+FNH DZ, HLD               # VMS-1
+LD PG, $FETCH1_PG         # cycle available, goto fetch
+#43

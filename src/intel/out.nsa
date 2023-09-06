@@ -1,0 +1,227 @@
+# Output to port
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE OUT_PG
+
+# assume: Y = $VMS
+LD HL, $KERN?$NULL
+LDZ Y, $EO
+FNH DZ, HLA               # A=0 if kern
+LD HL, $INC$FORK1
+LD Y, $PCL
+#10/9
+LDN PC, $EXIT12           # exit if not kern
+FNFH DZ, XD               # X,PCL = PCL+1
+FNDL A, PC
+#17/15
+
+ADDR 0x10                 # PORT0
+LD Y, $AREG
+FNFH DZ, NA               # acc->N
+LD PC, $EXIT35
+#35
+
+ADDR 0x16                 # PORT1
+LD Y, $AREG
+FNFH DZ, O1A              # acc->O1
+LD PC, $EXIT35
+#35
+
+ADDR 0x1C                 # PORT2
+LD Y, $AREG
+FNFH DZ, O2A              # acc->O2
+LD PC, $EXIT35
+#35
+
+ADDR 0x22                 # PORT3
+LD Y, $AREG
+FNFH DZ, O3A              # acc->O3
+LD PC, $EXIT35
+#35
+
+ADDR 0x28                 # PORT4
+LD Y, $AREG
+FNFH DZ, O4A              # acc->O4
+LD PC, $EXIT35
+#35
+
+ADDR 0x2E                 # PORT5
+LD Y, $AREG
+FNFH DZ, O5A              # acc->O5
+LD PC, $EXIT35
+#35
+
+ADDR 0x34                 # PORT6
+LD Y, $AREG
+FNFH DZ, O6A              # acc->O6
+LD PC, $EXIT35
+#35
+
+ADDR 0x3A                 # PORT7
+LD Y, $AREG
+FNFH DZ, O7A              # acc->O7
+LD PC, $EXIT35
+#35
+
+$ADDR 0x40
+LD HL, $0x20
+#30/2
+LD Y, $TMODE
+ORHL DZ, ND               # enable -> tx mode
+LD HL, $1COM$NULL
+LDZ Y, $TXWRIDX
+#40/10
+FNH DZ, HL                # HL=-tx write index
+LD Y, $TXRDIDX
+ADDHL DZ, NA              # A=tx read-tx write index
+LDP PC, $EXIT50           # exit if tx read >= tx write
+#49/17
+LD HL, $TXBUFF
+MVHL A, XA
+LD HL, $IDEN$NULL
+LD Y, $AREG
+#59/25
+FNFH DZ, NA               # A = Acc
+LDZ Y, $TXWRIDX
+FNH DZ, Y                 # Y = wr index
+FNH A, HLD                # A -> tx wr buff
+LD HL, $INC$NULL
+#70/33
+LDZ Y, $TXWRIDX
+FNH DZ, HLD
+$EXIT74
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/41
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/45
+
+ADDR 0x70                 # Jump to console page
+LD HL, $INC$FORKC
+LD PG, $CON_PG
+#32
+
+ADDR 0x74                 # Set Audio Mode
+LD HL, $XGA?$NULL
+LD PC, $AUDIO32
+#32
+
+$EXIT35
+LD HL, $INC$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD
+LD PG, $FETCH1_PG         # cycle available, goto fetch
+#43
+
+ADDR 0x80                 # PCL = 0, inc PCH
+LDZ Y, $PCH
+FNH DZ, HLD               # PCH = PCH+1      *** inc PCH ***
+#21/3
+LD HL, $IDEN$FORKP
+FNH A, Y                  # Y = PCH
+FNDL M, PC                # fork on port [PC]
+#28/8
+
+ADDR 0x88                 # Rx enable/disable
+LD HL, $REVERSE$NULL
+#30/10
+LDZ Y, $AREG
+FNH DZ, HLA               # test LSB of Acc
+LDP HL, $0x01             # disable if low
+LDN HL, $0x20             # enable if high
+LD Y, $RMODE
+#39/19
+ORHL DZ, ND               # set enable/disable bit
+LD PC, $EXIT45
+#45/23
+
+$EXIT12
+FNFH DZ, ND               # PCL = PCL+1
+LD HL, $ZERO?$NULL
+FNH A, HLA                # PCL overflow?
+#19/28
+LDP HL, $INC$NULL
+LDN HL, $IDEN$NULL
+LDZ Y, $PCH
+FNH DZ, HLD               # PCH+1 if overflow
+LD HL, $0
+LD Y, $AREG
+#30/39
+MULH AZ, ND               # 0->Acc
+LD PC, $EXIT35
+#35/43
+
+$EXIT44
+NOP
+$EXIT45
+NOP
+$EXIT46
+MVHL A, NA                # NOP
+#50/47
+$EXIT50
+LD HL, $0
+LD Y, $AREG
+MULH AZ, ND               # 0->Acc
+NOP
+NOP
+#59/55
+MVHL A, NA                # NOP
+$EXIT63
+NOP
+$EXIT64
+MVHL A, NA                # NOP
+MVHL A, NA                # NOP
+LD PC, $EXIT74
+#74/64
+
+ADDR 0xC0                 # else, iden PCH, iden PCH
+FNH A, HL                 # NOP
+LD HL, $IDEN$FORKP
+LDZ Y, $PCH
+FNH DZ, Y                 # Y = PCH
+FNDL M, PC                # fork on port [PC]
+#28/8
+
+ADDR 0xC8                 # Write to zpage
+LD HL, $0x3F
+#30/10
+ANDHL M, NA               # A = [PC]&0x3F
+LD HL, $0x80
+LD Y, $TEMP
+ORHL AZ, ND               # A|0x80 -> temp
+#42/18
+LD HL, $0x46              # check last 6 zpage entries
+ADDHL A, NA
+LDP PC, $EXIT50           # exit if read-ony
+LD HL, $IDEN$NULL
+#51/26
+LD Y, $AREG
+FNFH DZ, NA               # A = Acc
+LDZ Y, $TEMP
+FNH DZ, Y                 # Y = temp
+#60/33
+FNH AZ, HLD               # A -> Z[Y]
+LD PC, $EXIT64
+#64/36
+
+$AUDIO32
+LD Y, $VMS
+FNEH DZ, NA               # 0 if 3 cycles per line
+LDP HL, $0x80
+LDN HL, $0
+#40/44
+LD Y, $AREG
+ORH DZ, NA                # A = Acc|0b1000 if XGA
+LD HL, $0x0F
+LD Y, $AMODE
+#49/52
+ANDHL AZ, ND              # A&f -> Audio mode
+LD HL, $0x80
+LD Y, $AUDIO
+MVHL AZ, ND               # mute audio
+#61/60
+LD PC, $EXIT63
+#57/62

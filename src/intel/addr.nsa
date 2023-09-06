@@ -1,0 +1,34 @@
+# Add register to accumulator
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE ADDR_PG
+
+# assume: Y = $VMS
+LDZ HL, $INC$NULL
+FNH DZ, HLD           # inc state
+LD HL, $IDEN$REGMAPL
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of source reg
+#11
+FNH DZ, HL            # source reg -> HL
+LD Y, $AREG
+ADDHL DZ, ND          # Acc = Acc + HL
+LD Y, $FREG
+#21
+AFHL AZ, ND
+NOP
+NOP
+NOP
+NOP
+NOP
+#30
+NOP
+NOP
+NOP
+NOP
+NOP
+LD HL, $FETCH
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#43

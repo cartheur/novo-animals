@@ -1,0 +1,60 @@
+# Exchange stack top with HL (with prefetch)
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE XTHL_PG
+
+# assume: Y = $VMS
+LD HL, $0x30
+ADDH DZ, ND               # inc state
+LD HL, $IDEN$IDEN
+LD Y, $SPL
+#9
+FNFL DZ, X                # X = SPL
+LDZ Y, $SPH
+FNH DZ, Y                 # Y = SPH
+FNFH M, NA                # A = [SP]
+LD Y, $TEMP
+#21
+FNFH AZ, ND               # A -> temp
+LD Y, $LREG
+FNFH DZ, NA               # A = L
+LDZ Y, $SPH
+#31
+FNH DZ, Y
+FNFH A, NM                # A -> [SP]
+LD Y, $TEMP
+FNFH DZ, NA               # A = temp
+#41
+LD Y, $LREG
+FNH AZ, HLD               # A -> L
+LD HL, $INC$NULL
+LD Y, $SPL
+#49
+FNFH DZ, XA               # X = SPL+1
+LD HL, $ZERO?$NULL
+FNH A, HLA                # X overflow?
+LDP HL, $IDEN$INC
+LDN HL, $IDEN$IDEN
+#59
+LD Y, $SPH
+FNFL DZ, Y                # Y = SPH+1?
+FNFH M, NA                # A = [SP]
+LD Y, $TEMP
+#69
+FNFH AZ, ND               # A -> temp
+LD Y, $HREG
+FNFH DZ, NA               # A = H
+LD Y, $SPH
+#79
+FNFL DZ, Y                # Y = SPH+1?
+FNFH A, NM                # A -> [SP]
+LD Y, $TEMP
+FNFH DZ, NA               # A = temp
+#90
+LD Y, $HREG
+FNH AZ, HLD               # A -> H
+NOP
+NOP
+LD PG, $PREFETCH_PG
+#98

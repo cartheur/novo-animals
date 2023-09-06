@@ -1,0 +1,114 @@
+%SIGNAL
+PIN   5 =  DD7 
+PIN   6 =  I4 
+PIN   7 =  I5 
+PIN   8 =  I6 
+PIN   9 =  I7 
+PIN  18 =  PA16 
+PIN  19 =  PA17 
+PIN  13 =  alu 
+PIN  16 =  boot 
+PIN  14 =  fetch 
+PIN   3 =  hblank 
+PIN  15 =  hsel 
+PIN  12 =  pcent 
+PIN   2 =  pclk 
+PIN   4 = !reset 
+PIN   1 =  sclk 
+PIN  17 =  sign 
+%END
+
+%FIELD
+FIELD execution = !fetch,!hsel
+%END
+
+%EQUATION
+PA16 =>
+    !I7 & !fetch & !hsel & pclk
+  # I5 & !I7 & !fetch & pclk
+  # I6 & !fetch & pclk
+  # hblank & !pclk
+
+!PA17 =>
+    fetch & pclk
+  # I5 & I6 & !I7 & pclk
+  # !I6 & I7 & pclk
+
+!alu =>
+    fetch
+  # !I6 & I7
+
+aluh =>
+    I6
+
+aluhl =>
+    !I5 & !I6 & !I7
+
+alul =>
+    I5 & !I6 & !I7
+
+!boot.d  =>
+    !boot & reset
+  # I4 & !I5 & !I6 & I7 & boot & !fetch
+
+!fetch.d  =>
+    !I5 & !I6 & !I7 & !fetch & !hsel
+  # !I4 & I5 & I7 & fetch & hsel & reset & !sign
+  # I4 & I7 & fetch & hsel & reset & sign
+  # I4 & !I5 & I7 & fetch & hsel & reset
+  # I6 & I7 & fetch & hsel & reset
+  # I6 & fetch & !hsel
+  # !I6 & fetch & !hsel & reset
+
+!hsel.d  =>
+    !I6 & fetch & !hsel & reset
+  # !I7 & fetch & hsel
+
+ld =>
+    I4 & !I5 & !I6 & I7
+
+ldc =>
+    I5 & !I6 & I7
+
+nop =>
+    !I4 & !I5 & !I6 & I7
+
+oper =>
+    !I6 & I7
+
+pcent =>
+    !I6 & I7 & pclk
+  # fetch & pclk
+  # !I4 & I5 & !I6 & I7 & sign
+  # I4 & I5 & !I6 & I7 & !sign
+
+rom =>
+    I5 & I6 & !I7
+
+sign.d  =>
+    DD7 & !I7 & !fetch & !sign
+  # fetch & sign
+  # DD7 & sign
+  # !I6 & I7 & sign
+  # DD7 & I6 & !fetch & !sign
+
+skip =>
+    !I4 & I5 & !I6 & I7 & sign
+  # I4 & I5 & !I6 & I7 & !sign
+
+start =>
+    I4 & !I5 & !I6 & I7 & !fetch
+
+PA16.oe  =>
+    1 
+
+PA17.oe  =>
+    1 
+
+alu.oe  =>
+    1 
+
+pcent.oe  =>
+    1 
+
+%END

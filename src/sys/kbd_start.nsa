@@ -1,0 +1,134 @@
+# Keyboard Start - send PS/2 reset, retry for 2 secs if no clock
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE KBD_START_PG
+
+LD HL, $7                 # retry 7 times
+LD Y, $TEMP
+MVHL AZ, ND               # 7->TEMP
+LD HL, $0x40
+LD Y, $KBSTAT
+MVHL DZ, ND               # set kbd status to 0b01000000
+MULL A, V                 # reset V, preset H reg
+MULL A, S                 # reset scan/kbdtx high
+
+# (1)  Auxiliary device idle when clock high for 186us
+$IDLE
+LD HL, $0x10
+LD Y, $EO
+XORHL DZ, ED              # toggle LED
+LD HL, $0x80              # delay 128
+LD Y, $TMPL
+MVHL AZ, ND               # 128->TMPL
+$DELAY1
+LD HL, $IDEN$NULL
+FNFH E, NA                # A sign=kbd clk
+LDP PC, $IDLE             # reset if clk low
+LDZ HL, $DEC$NULL
+FNH DZ, HLD               # TMPL-1->TMPL
+LDP PC, $DELAY1           # delay until -1
+
+# (2)  Bring clock low for 124us
+LD HL, $0x20
+LD Y, $EO
+ORHL DZ, ED               # kbdclk low
+LD HL, $0x80              # delay 128*8
+MVHL A, NA                # A=128
+$DELAY2
+NOP
+NOP
+LD HL, $DEC$NULL
+FNH A, HLA                # A=A-1
+LDP PC, $DELAY2           # delay until -1
+
+# (3)  Bring data low for 93us
+LD HL, $0
+MULL A, V                 # reset V, preset H reg
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+NOP
+MULL A, S                 # kbdtx low
+LD HL, $0x80              # dealy 128*6
+MVHL A, NA                # A=128
+$DELAY3
+LD HL, $DEC$NULL
+FNH A, HLA                # A=A-1
+LDP PC, $DELAY3           # delay until -1
+
+# (4)  Release clock
+LD HL, $0xDF
+LD Y, $EO
+ANDHL DZ, ED              # kbdclk high
+
+# (5)  Wait 10ms for auxiliary device to bring clock low
+LD HL, $0x80              # loop 128
+LD Y, $TMPH
+MVHL AZ, ND               # 128->TMPH
+$LOOP5
+LD HL, $0x37              # delay 80us
+LD Y, $TMPL
+MVHL AZ, ND               # 55->TMPL
+$DELAY5
+LD HL, $IDEN$NULL
+FNFH E, NA                # A sign=kbd clk
+LDP PC, $PASS             # pass if clk low
+LDZ HL, $DEC$NULL
+FNH DZ, HLD               # TMPL-1->TMPL
+LDP PC, $DELAY5           # delay until -1
+LD HL, $DEC$NULL
+LDZ Y, $TMPH
+FNH DZ, HLD               # TMPH-1->TMPH
+LDP PC, $LOOP5            # loop until 0
+
+# (6)  Release data, wait 300ms, retry
+LD HL, $0x20
+MULL A, V                 # reset V, preset H reg
+MULL A, S                 # kbdtx high
+LD HL, $DEC$NULL
+LDZ Y, $TEMP
+FNH DZ, HLD               # TEMP-1->TEMP
+LDN PC, $TIMEOUT          # timeout if no more retries
+LD HL, $0x36              # loop 54
+LD Y, $TMPH
+MVHL AZ, ND               # 54->TMPH
+$LOOPH
+LD HL, $0x80              # loop 128
+LD Y, $TMPL
+MVHL AZ, ND               # 128->TMPH
+$LOOPL
+LD HL, $0x37              # delay 40us
+MVHL A, NA                # A=55
+$DELAY
+LD HL, $DEC$NULL
+FNH A, HLA                # A=A-1
+LDP PC, $DELAY            # delay until -1
+LDZ HL, $DEC$NULL
+FNH DZ, HLD               # TMPH-1->TMPH
+LDP PC, $LOOPL            # loop until 0
+LD HL, $DEC$NULL
+LDZ Y, $TMPH
+FNH DZ, HLD               # TMPH-1->TMPH
+LDP PC, $LOOPH            # loop until 0
+LD PC, $IDLE              # retry
+
+# (7)  Release data to transmit 10 high bits - FF, patiry, stop
+$PASS
+LD HL, $0x80
+LD Y, $KBSTAT
+ORHL DZ, ND               # set MSB of kbd status
+MULL A, V                 # reset V, preset H reg
+MULL A, S                 # kbdtx high
+
+$TIMEOUT
+LD PG, $WARM_START_PG

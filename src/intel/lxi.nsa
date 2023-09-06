@@ -1,0 +1,177 @@
+# Load immediate to register (with fetch)
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE LXI_PG
+
+# assume: Y = $VMS
+LDZ HL, $INC2$NULL
+FNH DZ, HLD           # inc state
+NOP
+NOP
+NOP
+NOP
+NOP
+LD HL, $INC$FORK3
+#11
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+FNDL A, PC
+#19
+
+ADDR 0x20             # PCL = 254, iden PCH, iden PCH, inc PCH
+LD HL, $IDEN$REGMAPL
+#21
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+#30
+FNDL DZ, Y            # Y = zpage addr of low reg
+FNH AZ, HLD           # A -> low reg
+LD HL, $INC$NULL
+LD Y, $PCL
+#39
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$REGMAPH
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+#51
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of hi reg
+FNH AZ, HLD           # A -> hi reg
+LD HL, $INC$NULL
+#60
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LDZ Y, $PCH
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$NULL
+#71
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86
+
+ADDR 0x58             # PCL = 255, iden PCH, inc PCH, iden PCH
+LD HL, $IDEN$REGMAPL
+#21
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+#30
+FNDL DZ, Y            # Y = zpage addr of low reg
+FNH AZ, HLD           # A -> low reg
+LD HL, $INC$NULL
+LD Y, $PCL
+#39
+FNFH DZ, XD           # X,PCL = PCL+1
+LDZ Y, $PCH
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$REGMAPH
+FNH A, Y              # Y = PCH
+#50
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of hi reg
+FNH AZ, HLD           # A -> hi reg
+#60
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$NULL
+LDZ Y, $PCH
+#71
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86
+
+ADDR 0x90             # PCL = 0, inc PCH, iden PCH, iden PCH
+LDZ Y, $PCH
+#21
+FNH DZ, HLD           # PCH = PCH+1      *** inc PCH ***
+LD HL, $IDEN$REGMAPL
+FNH A, Y              # Y = PCH
+FNFH M, NA            # A = [PC]
+#30
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of low reg
+FNH AZ, HLD           # A -> low reg
+LD HL, $INC$NULL
+LD Y, $PCL
+#41
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$REGMAPH
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+#50
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of hi reg
+FNH AZ, HLD           # A -> hi reg
+#60
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$NULL
+LDZ Y, $PCH
+#71
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86
+
+ADDR 0xC8             # else, iden PCH, iden PCH, iden PCH
+NOP
+#20
+NOP
+LD HL, $IDEN$REGMAPL
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+#30
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of low reg
+FNH AZ, HLD           # A -> low reg
+LD HL, $INC$NULL
+LD Y, $PCL
+#41
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$REGMAPH
+LDZ Y, $PCH
+FNH DZ, Y             # Y = PCH
+#50
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNDL DZ, Y            # Y = zpage addr of hi reg
+FNH AZ, HLD           # A -> hi reg
+#60
+LD HL, $INC$NULL
+LD Y, $PCL
+FNFH DZ, XD           # X,PCL = PCL+1
+LD HL, $IDEN$IDEN
+LDZ Y, $PCH
+#71
+FNH DZ, Y             # Y = PCH
+FNFH M, NA            # A = [PC]
+LD Y, $INST
+FNH AZ, HLD           # A -> inst cache,HL
+#80
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#86

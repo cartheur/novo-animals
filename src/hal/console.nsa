@@ -1,0 +1,208 @@
+# Console jump page
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE CON_PG
+
+# assume H = $INC, L = $FORKC
+LD Y, $AREG               #32
+FNDL DZ, PC               # fork on character
+#37/4
+
+ADDR 0x04                 # NOP
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+1
+LD PG, $FETCH1_PG         # cycle available, goto fetch
+#43/5
+
+ADDR 0x09                 # Backspace
+LD HL, $DEC$1COM
+#39/2
+LD Y, $CONX
+FNFH DZ, ND               # column-1
+LD Y, $CONB
+FNFL DZ, HL               # HL = -console left stop-1
+#49/10
+ADDHL A, NA               # A = column-console left stop-1
+LD HL, $LSL$INC
+LD Y, $CONX
+LDN PC, $BOL59            # Exit if less than console left
+FNFH DZ, NA               # A = column*2
+#61/20
+FNFL A, X                 # X = A+1
+LD HL, $IDEN$NULL
+LDZ Y, $CONY
+FNH DZ, Y                 # Y = row
+#70/27
+MULH A, ND                # 0->[Y,X]
+NOP
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/35
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/39
+
+$BOL59                    # move forward one column
+LDZ HL, $INC$NULL
+FNH DZ, HLD               # column+1
+LD PC, $EXIT65
+#65/45
+
+ADDR 0x36                 # Horizontal Tab (cursor+8 mod 8)
+LD HL, $2COM$8
+#39/2
+LDZ Y, $CONR
+FNFH DZ, NA               # A = -console right
+ADDL A, HL                # HL = 8-console right
+LD Y, $CONX
+#49/10
+ADDHL DZ, NA              # A = column-last tab
+LD HL, $8$IDEN
+LDP PC, $EXIT57           # End of line not negative
+ANDH A, NA                # A&8
+#59/18
+LD Y, $CONR
+FNFL DZ, HL               # HL = console right
+LD Y, $CONX
+ADDHL AZ, ND              # A+console right -> column
+#70/26
+LD PC, $EXIT72
+#72/28
+
+ADDR 0x52                 # Line Feed (row+1, dispatch clear line)
+LDZ Y, $CONH
+#39/2
+FNH DZ, HLA               # A = console heigth+1
+LDP Y, $VSTART            # use vstart at max height
+LDNZ Y, $CONH             # else use console height
+LDZ HL, $INC$NULL
+FNFH DZ, ND               # (console height or vstart)+1
+#49/11
+LDZ Y, $CONY
+FNH DZ, HLD               # row+1
+LD HL, $LSL$NULL
+LDZ Y, $CONL
+FNH DZ, HLA               # A = console left*2
+#59/19
+LD HL, $DEC$NULL
+LD Y, $TEMP
+FNH AZ, HLD               # A-1 -> temp
+LD HL, $CLRLN_INST
+LD Y, $INST
+#69/28
+MVHL AZ, ND               # clear line -> inst cache
+LD HL, $0xA0
+LD Y, $VMS                # set Y = $VMS on exit
+ADDH DZ, ND               # VMS+EXT+2
+#80/36
+LD HL, $CLRLN_INST
+DISHL DZ, PGA             # jump to next VMC
+#86/40
+
+ADDR 0x7A                 # Carriage Return (blank cursor, column to console left)
+LD HL, $LSL$INC
+#39/2
+LD Y, $CONX
+FNFH DZ, NA               # A = column*2
+FNFL A, X                 # X = A+1
+LD HL, $IDEN$NULL
+#49/10
+LDZ Y, $CONY
+FNH DZ, Y                 # Y = row
+MULH A, ND                # null -> [Y,X]
+LDZ Y, $CONL
+FNH DZ, HLA               # A = console left
+#60/18
+LD HL, $INC$NULL
+LDZ Y, $CONX
+FNH AZ, HLD               # A -> column
+MVHL A, NA                # NOP
+LD PC, $EXIT72
+#72/27
+
+ADDR 0x96                 # Standard Character (column+1, print char in acc)
+LDZ Y, $CONX
+#39/2
+FNH DZ, HLD               # column+1
+LD HL, $1COM$NULL
+LDZ Y, $CONR
+FNH DZ, HL                # HL = -console right-1
+ADDHL A, NA               # A = column-console right-1
+#51/10
+LD Y, $CONX
+LDP PC, $EOL55            # Exit if more than console right
+LDZ HL, $LSL$NULL
+FNH DZ, HLA               # A = column*2
+LD HL, $IDEN$DEC
+#60/19
+FNFL A, X                 # X = A-1
+LD Y, $AREG
+FNFH DZ, NA               # A = char
+LDZ Y, $CONY
+#70/27
+FNH DZ, Y                 # Y = row
+FNH A, HLD                # char -> [Y,X]
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/34
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/38
+
+$EOL55                    # back off one column
+LDZ HL, $DEC$NULL
+FNH DZ, HLD               # column-1
+LD PC, $EXIT61
+#61/43
+
+ADDR 0xC2                 # Flash Cursor (toggle null to char @1.2Hz)
+LD HL, $LSL$NULL
+#39/2
+LDZ Y, $CONX
+FNH DZ, HLA               # A = column*2
+LD HL, $5$INC             # F=30BPM,9=50BPM,5=90BPM,3=150BPM
+FNFL A, X                 # X = A+1
+LD Y, $TIME0
+#50/11
+DIVH DZ, NA               # A = time0/5
+ANDL A, HL                # L = A&1
+LD Y, $AREG
+MULL DZ, HL               # HL = 0|1 * 0|0x10
+#61/19
+LD Y, $CONC
+MULH DZ, NA               # A = cursor char
+LD HL, $IDEN$NULL
+LDZ Y, $CONY
+#70/27
+FNH DZ, Y                 # Y = column
+FNH A, HLD                # A -> [Y,X]
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/34
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/38
+
+$EXIT57
+MVHL A, NA                # NOP
+$EXIT61
+MVHL A, NA                # NOP
+$EXIT65                   # exit with null in Acc
+LD HL, $0
+LD Y, $AREG
+#69/46
+MULH AZ, ND               # 0 -> Acc
+$EXIT72
+NOP
+NOP
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/55
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/59

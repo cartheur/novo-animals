@@ -1,0 +1,50 @@
+# Restart - inc PC, vector->temp, RST2->inst
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE RST_PG
+
+# assume: Y = $VMS
+LD HL, $INC$FORK1
+FNFH DZ, ND           # inc state
+LD Y, $PCL
+FNFH DZ, ND           # PCL = PCL+1
+FNDL A, PC            # fork on PCL
+#13
+
+ADDR 0x80             # PCL = 0
+LDZ Y, $PCH
+FNFH DZ, ND           # PCH = PCH+1      *** inc PCH ***
+LDZ Y, $INST
+#20
+FNH DZ, HLA           # A = inst + 1
+LD HL, $REGMAPH$NULL
+LD Y, $TEMP
+FNDH AZ, ND           # rst vector -> temp
+#29
+LD HL, $RST2_INST
+LD Y, $INST
+MVHL AZ, ND           # restart -> inst cache
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#43
+
+ADDR 0xC0             # else
+NOP
+NOP
+NOP
+NOP
+NOP
+LDZ Y, $INST
+#20
+FNH DZ, HLA           # A = inst + 1
+LD HL, $REGMAPH$NULL
+LD Y, $TEMP
+FNDH AZ, ND           # rst vector -> temp
+#29
+LD HL, $RST2_INST
+LD Y, $INST
+MVHL AZ, ND           # restart -> inst cache
+LD Y, $VMS            # set Y = $VMS on exit
+DISHL DZ, PGA         # jump to next VMC
+#43

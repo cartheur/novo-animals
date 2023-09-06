@@ -1,0 +1,229 @@
+# Input from port
+INCLUDE ../inc/unary.nsa
+INCLUDE ../inc/zpage.nsa
+INCLUDE ../inc/pages.nsa
+PAGE IN_PG
+
+# assume: Y = $VMS
+LD HL, $KERN?$NULL
+LDZ Y, $EO
+FNH DZ, HLA               # A=0 if kern
+LD HL, $INC$FORK1
+LD Y, $PCL
+#10/9
+LDN PC, $EXIT12           # exit if not kern
+FNFH DZ, XD               # X,PCL = PCL+1
+FNDL A, PC
+#17/15
+
+ADDR 0x10                 # PORT0
+LD Y, $AREG
+FNFH IZ, ND               # I0->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x16                 # PORT1
+LD Y, $AREG
+FNFH IZ, O1D              # I1->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x1C                 # PORT2
+LD Y, $AREG
+FNFH IZ, O2D              # I2->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x22                 # PORT3
+LD Y, $AREG
+FNFH IZ, O3D              # I3->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x28                 # PORT4
+LD Y, $AREG
+FNFH IZ, O4D              # I4->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x2E                 # PORT5
+LD Y, $AREG
+FNFH IZ, O5D              # I5->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x34                 # PORT6
+LD Y, $AREG
+FNFH IZ, O6D              # I6->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x3A                 # PORT7
+LD Y, $AREG
+FNFH IZ, O7D              # I7->acc
+LD PC, $EXIT35
+#35
+
+ADDR 0x40                 # Serial Rx
+LD HL, $2COM$NULL
+#30/2
+LDZ Y, $RXWRIDX
+FNH DZ, HL                # HL=-rx write index
+LD Y, $RXRDIDX
+ADDHL DZ, NA              # A=rx read-rx write index
+#40/9
+LD HL, $ZERO?$NULL
+FNH A, HLA
+LDP PC, $RESTART46        # exit if rx read == rx write
+LD HL, $RXBUFF
+LD PC, $CONT49
+#49/18
+
+$KC30                     # Keyboard Code
+LD HL, $2COM$NULL
+LDZ Y, $KCWRIDX
+FNH DZ, HL                # HL=-kc write index
+LD Y, $KCRDIDX
+ADDHL DZ, NA              # A=kc read-kc write index
+LD HL, $KCBUFF
+LDP PC, $EXIT46           # exit if kc read >= kc write
+LD PC, $CONT47
+#47/33
+
+$KS30
+LD HL, $2COM$NULL
+LDZ Y, $KSWRIDX
+FNH DZ, HL                # HL=-ks write index
+LD Y, $KSRDIDX
+ADDHL DZ, NA              # A=ks read-ks write index
+LD HL, $KSBUFF
+LDP PC, $EXIT46           # exit if ks read >= ks write
+LD PC, $CONT47
+#47/48
+
+ADDR 0x70                 # Kbd code
+LD PC, $KC30
+#30
+
+ADDR 0x74                 # Kbd scan
+LD PC, $KS30
+#30
+
+$RESTART46
+LD HL, $0x20              # enable rx/reassert RTS
+LD Y, $RMODE
+#50/4
+ORHL DZ, ND               # set enable bit
+LD HL, $0
+LD PC, $EXIT58
+#58/10
+
+ADDR 0x80                 # PCL = 0, inc PCH
+LDZ Y, $PCH
+FNH DZ, HLD               # PCH = PCH+1      *** inc PCH ***
+#21/3
+LD HL, $IDEN$FORKP
+FNH A, Y                  # Y = PCH
+FNDL M, PC                # fork on port [PC]
+#28/8
+
+ADDR 0x88                 # Read console char
+LD HL, $LSL$INC
+#30/10
+LD Y, $CONX
+FNFH DZ, NA               # A = column*2
+FNFL A, X                 # X = A+1
+LD HL, $IDEN$NULL
+#40/18
+LDZ Y, $CONY
+FNH DZ, Y                 # Y = row
+FNH D, HL                 # HL = [XY]
+NOP
+NOP
+LD PC, $EXIT50
+#50/26
+
+$EXIT35
+LD HL, $INC$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD
+LD PG, $FETCH1_PG         # cycle available, goto fetch
+#43/34
+
+$EXIT46
+LD HL, $0
+NOP
+NOP
+$EXIT50
+MVHL A, NA                # NOP
+MVHL A, NA                # NOP
+$EXIT58
+LD Y, $AREG
+#60/44
+MVHL AZ, ND               # A -> Acc
+MVHL A, NA                # NOP
+MVHL A, NA                # NOP
+$EXIT72
+NOP
+NOP
+LD HL, $INC2$NULL
+LDZ Y, $VMS               # set Y = $VMS on exit
+FNH DZ, HLD               # VMS+2
+#80/57
+LD HL, $FETCH
+DISHL DZ, PGA             # jump to next VMC
+#86/61
+
+ADDR 0xC0                 # else, iden PCH, iden PCH
+FNH A, HLA                # NOP
+LD HL, $IDEN$FORKP
+LDZ Y, $PCH
+FNH DZ, Y                 # Y = PCH
+FNDL M, PC                # fork on port [PC]
+#28/8
+
+ADDR 0xC8                 # Read from zpage
+MVHL A, NA                # NOP
+LD HL, $0x3F
+ANDHL M, NA               # A = [PC]&0x3F
+LD HL, $0x80
+#40/16
+ORHL A, YA                # Y = A|0x80
+LDZ HL, $IDEN$NULL
+FNH DZ, HL                # HL = Z[Y]
+LD PC, $EXIT50
+#51/23
+
+$EXIT12
+FNFH DZ, ND               # PCL = PCL+1
+LD HL, $ZERO?$NULL
+FNH A, HLA                # PCL overflow?
+#19/29
+LDP HL, $INC$NULL
+LDN HL, $IDEN$NULL
+LDZ Y, $PCH
+FNH DZ, HLD               # PCH+1 if overflow
+LD HL, $0
+LD Y, $AREG
+#30/40
+MULH AZ, ND               # 0->Acc
+LD PC, $EXIT35
+#35/44
+
+$CONT47
+NOP
+NOP
+$CONT49
+#49/46
+MVHL A, XA                # X=buff addr
+LDZ HL, $INC$NULL
+FNH DZ, HLD               # read index+1
+LD HL, $IDEN$DEC
+#59/53
+FNFL A, Y                 # Y=read index-1
+FNFH D, NA                # A=char
+LD Y, $AREG
+FNH AZ, HLD               # A -> Acc
+NOP
+LD PC, $EXIT72
+#71/62

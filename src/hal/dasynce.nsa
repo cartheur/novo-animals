@@ -1,0 +1,7 @@
+# Delay of audio on execute
+INCLUDE ../inc/pages.nsa
+PAGE DASYNCE_PG
+
+LD Y, $VMS
+LD PG, $ASYNCE_PG
+#4

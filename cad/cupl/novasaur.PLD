@@ -1,0 +1,92 @@
+Name     novasaur ;
+PartNo   00 ;
+Date     10/5/2019 ;
+Revision 08 ;
+Designer A J Hewitt ;
+Company  ;
+Assembly None ;
+Location None ;
+Device   g16v8a ;
+
+/****************************** INPUT PINS *******************************/
+PIN 1      = sclk          ; /*                                          */
+PIN 2      = pclk          ; /*                                          */
+PIN 3      = hblank        ; /*                                          */
+PIN 4      = !reset        ; /*                                          */
+PIN 5      = DD7           ; /*                                          */
+PIN [6..9] = [I4..7]       ; /*                                          */
+
+/****************************** OUTPUT PINS ******************************/
+PIN 12    = pcent          ; /* PC Count Enable (ent)                    */
+PIN 13    = alu            ; /* ALU Select (0=prog, 1=ALU)               */
+PIN 14    = fetch          ; /* CPU execution state (0=execute, 1=fetch) */
+PIN 15    = hsel           ; /* H Register Select (0=L, 1=H)             */
+PIN 16    = boot           ; /* Boot mode (0=run, 1=boot)                */
+PIN 17    = sign           ; /* Cached value of DD7                      */
+PIN 18    = PA16           ; /* ROM A16                                  */
+PIN 19    = PA17           ; /* ROM A17                                  */
+
+aluhl = !I7 & !I6 & !I5;
+alul  = !I7 & !I6 &  I5;
+aluh  =        I6;
+rom   = !I7 &  I6 &  I5;
+oper  =  I7 & !I6;
+nop   =  oper     & !I5 & !I4;
+ld    =  oper     & !I5 &  I4;
+ldc   =  oper     &  I5;
+
+skip  = ldc & (I4 $ sign);
+start = ld & !fetch;
+
+pcent = (pclk & (fetch # oper)) # skip;
+!alu   = fetch # oper;
+PA16  = (pclk & !(fetch # oper) & !(hsel & aluhl)) # (!pclk & hblank);
+!PA17 = pclk & (fetch # oper # rom);
+
+FIELD execution = [!fetch, !hsel];
+$DEFINE fetch_L   'b'00
+$DEFINE fetch_H   'b'01
+$DEFINE alu_L     'b'11
+$DEFINE alu_H     'b'10
+
+SEQUENCE execution {
+  PRESENT fetch_L
+    IF nop # skip # reset NEXT fetch_L;
+    IF !I7 NEXT fetch_H;
+    DEFAULT NEXT alu_H;
+  PRESENT fetch_H
+    IF reset NEXT fetch_L;
+    IF aluh NEXT alu_H;
+    DEFAULT NEXT alu_L;
+  PRESENT alu_L
+    IF reset NEXT fetch_L;
+    IF aluhl NEXT alu_H;
+    DEFAULT NEXT fetch_L;
+  PRESENT alu_H
+    NEXT fetch_L;
+}
+
+$DEFINE pos       'b'0
+$DEFINE neg       'b'1
+
+SEQUENCE sign {
+  PRESENT neg
+    IF !fetch & !oper & !DD7 NEXT pos;
+    DEFAULT NEXT neg;
+  PRESENT pos
+    IF !fetch & !oper & DD7 NEXT neg;
+    DEFAULT NEXT pos;
+}
+
+$DEFINE init      'b'0
+$DEFINE run       'b'1
+
+SEQUENCE !boot {
+  PRESENT init
+    IF reset NEXT init;
+    IF start NEXT run;
+    DEFAULT NEXT init;
+  PRESENT run
+    IF reset NEXT init;
+    DEFAULT NEXT run;
+}

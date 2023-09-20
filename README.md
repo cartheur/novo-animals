@@ -1,4 +1,4 @@
-# novo-animals
+## a-novo-animals-tempalte
 
 A new generation design of animals in the format of a retro-computer consisting of 26 TTL chips in the following map:
 ```
